@@ -171,8 +171,10 @@ private:
 		else
 			y = y_square.root();
 
-		if (y_square.root() == -1)
+		if (y == -1)
+		{
 			y = 0;
+		}
 	}
 
 	//Überprüft ob die Kurve legitim ist. 
@@ -256,12 +258,12 @@ public:
 	//A+B = C. Ja, wirklich. Eine elliptische Kurve.
 	UPoint operator+(UPoint otherPoint)
 	{
-		if (otherPoint.x.zahl == 0 && otherPoint.y.zahl == 0)
+		if ((otherPoint.x.zahl == 0 && otherPoint.y.zahl == 0) || (otherPoint.x.zahl == PRIME && otherPoint.y.zahl == PRIME))
 			return *this;
 		if (this->x.zahl == 0 && this->y.zahl == 0)
 			return otherPoint;
-		if ((this->y + otherPoint.y).zahl == 0)
-			return UPoint(PRIME, PRIME);
+		/*if ((this->y + otherPoint.y).zahl == 0)
+			return UPoint(PRIME, PRIME);*/
 
 		if (this->x.zahl == otherPoint.x.zahl)
 		{
@@ -278,7 +280,7 @@ public:
 		}
 
 		UInt m = (otherPoint.y - this->y)/(otherPoint.x - this->x);
-		UInt _x = (m*m) - this->x - otherPoint.x;
+		UInt _x = (m*m) - otherPoint.x - this->x;
 		UInt _y = m*(this->x - _x ) - this->y;		
 
 		return UPoint(_x, _y);
@@ -290,7 +292,7 @@ public:
 };
  
 #pragma region Least Common Divisor
-int ggT(int zahl1, int zahl2)
+unsigned long long ggT(unsigned long long zahl1, unsigned long long zahl2)
 {
 	if (zahl2 == 0)
 	{
@@ -327,30 +329,26 @@ void main()
 	unsigned long long counter[127] = { 0 };
 	int single_count = 0;
 	//punkt1 = UPoint(37);
-	
-	punkt1 = UPoint(1);
-	punkt2 = UPoint(punkt1.x, punkt1.y);
-
-	for (int i = 0; i < 127; i++)
-	{
-		punkt1 = UPoint(i);
-		if (punkt1.y.zahl != 0)
-			single_count += 2;
-	}
-
-	printf("Your curve has %d points\n", single_count);
 
 	for (int i = 0; i < 127; i++)
 	{
 		punkt1 = UPoint(i);
 		punkt2 = UPoint(i);
 		punkt1.print_point();
-		single_count = 0;
+		single_count = 1;
 		punkt1 = punkt1 + punkt2;
+
+		
 		while (true)
 		{
-			single_count++;
+			if (punkt2.y.zahl == 0)
+			{
+				single_count = 0;
+				counter[i] = 0;
+				break;
+			}
 			punkt1 = punkt1 + punkt2;
+			single_count++;
 			if ((punkt1.y.zahl == punkt2.y.zahl && punkt1.x.zahl == punkt2.x.zahl) || punkt1.y.zahl== PRIME)
 			{
 				//printf("So many counts: %d\n", single_count);
@@ -395,8 +393,17 @@ void main()
 
 	//
 
+	printf("\n\n\n\n");
 	for (int i = 0; i < 127; i++)
-		printf("\nCounter #%3d: %3d", i+1, counter[i]);
+	{
+		punkt1 = UPoint(i);
+		if (punkt1.y.zahl != 0)
+		{
+			
+			punkt1.print_point();
+			printf("    %3d\n", counter[i]);
+		}
+	}
 
 	printf("\n%llu ", kgV_array(counter));
 	system("pause"); 
